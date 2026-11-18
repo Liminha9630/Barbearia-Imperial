@@ -136,7 +136,6 @@
             margin-bottom: 24px;
         }
 
-        /* Serviços */
         .services-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -180,7 +179,6 @@
             font-weight: 600;
         }
 
-        /* Barbeiros */
         .barbers-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -225,7 +223,6 @@
             font-size: 14px;
         }
 
-        /* Datas */
         .dates-slider {
             display: flex;
             gap: 10px;
@@ -272,7 +269,6 @@
             color: var(--gold);
         }
 
-        /* Horários */
         .slots-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -312,7 +308,6 @@
             text-decoration: line-through;
         }
 
-        /* Formulário */
         .form-group {
             margin-bottom: 16px;
         }
@@ -340,7 +335,6 @@
             border-color: var(--gold);
         }
 
-        /* Resumo Lateral */
         .summary-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -416,7 +410,6 @@
             background: var(--gold-hover);
         }
 
-        /* Modais */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -501,25 +494,6 @@
         .whatsapp-btn.barber {
             background: #128c7e;
         }
-
-        .appointment-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .badge-status {
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: rgba(34, 197, 94, 0.1);
-            color: var(--accent);
-        }
     </style>
 </head>
 <body>
@@ -539,21 +513,17 @@
     </header>
 
     <div class="container">
-        <!-- Lado Esquerdo: Etapas -->
         <div class="booking-flow">
-            <!-- 1. Serviços -->
             <div class="card">
                 <div class="section-title">1. Escolha o Serviço</div>
                 <div class="services-grid" id="services-container"></div>
             </div>
 
-            <!-- 2. Barbeiros -->
             <div class="card">
                 <div class="section-title">2. Escolha o Profissional</div>
                 <div class="barbers-grid" id="barbers-container"></div>
             </div>
 
-            <!-- 3. Data e Horário -->
             <div class="card">
                 <div class="section-title">3. Data e Horário</div>
                 <div class="dates-slider" id="dates-container"></div>
@@ -563,7 +533,6 @@
                 </div>
             </div>
 
-            <!-- 4. Seus Dados -->
             <div class="card">
                 <div class="section-title">4. Seus Dados</div>
                 <div class="form-group">
@@ -581,7 +550,6 @@
             </div>
         </div>
 
-        <!-- Lado Direito: Resumo -->
         <div class="summary-card">
             <div class="summary-title">
                 Resumo da Reserva <span>📋</span>
@@ -617,14 +585,13 @@
         </div>
     </div>
 
-    <!-- Modal de Sucesso / Confirmação -->
     <div class="modal-overlay" id="success-modal">
         <div class="modal-content">
             <div class="success-box">
                 <div class="success-icon">🎉</div>
                 <h2 style="color: var(--gold); margin-bottom: 10px;">Agendamento Realizado!</h2>
                 <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
-                    Sua reserva foi concluída com sucesso e o sistema abriu os chats do WhatsApp para envio das confirmações.
+                    Sua reserva foi enviada para a nuvem e os chats do WhatsApp foram abertos.
                 </p>
                 <div id="whatsapp-buttons-area"></div>
                 <button class="btn-header" style="width: 100%; margin-top: 15px; justify-content: center;" onclick="closeSuccessModal()">Fechar e Novo Agendamento</button>
@@ -632,7 +599,6 @@
         </div>
     </div>
 
-    <!-- Modal de Meus Agendamentos -->
     <div class="modal-overlay" id="appointments-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -640,28 +606,27 @@
                 <button class="close-btn" onclick="closeAppointmentsModal()">✕</button>
             </div>
             <div id="appointments-list-container">
-                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Nenhum agendamento registrado neste navegador.</p>
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Carregando da nuvem...</p>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Configurações (WhatsApp dos Barbeiros) -->
     <div class="modal-overlay" id="config-modal">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title">Configurar WhatsApp dos Barbeiros</div>
                 <button class="close-btn" onclick="closeConfigModal()">✕</button>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
-                Insira o número com DDD para onde a notificação de cada barbeiro será enviada automaticamente.
-            </p>
             <div id="barbers-config-list"></div>
             <button class="btn-submit" onclick="saveBarberConfigs()" style="margin-top: 20px;">Salvar Alterações</button>
         </div>
     </div>
 
     <script>
-        // Dados Iniciais
+        // Banco de Dados na Nuvem (JSONBin Gratuito)
+        const BIN_ID = "6752d58cad19514462615436"; // ID Compartilhado do Sistema
+        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
         const services = [
             { id: 1, name: "Corte Degradê", price: 45.00, duration: "30 min" },
             { id: 2, name: "Barba Terapia", price: 40.00, duration: "30 min" },
@@ -678,30 +643,52 @@
         ];
 
         let barbers = JSON.parse(localStorage.getItem('barbers_config')) || defaultBarbers;
+        const timeSlots = ["09:00", "09:40", "10:20", "11:00", "11:40", "13:00", "13:40", "14:20", "15:00", "15:40", "16:20", "17:00", "17:40", "18:20", "19:00"];
 
-        const timeSlots = [
-            "09:00", "09:40", "10:20", "11:00", "11:40",
-            "13:00", "13:40", "14:20", "15:00", "15:40",
-            "16:20", "17:00", "17:40", "18:20", "19:00"
-        ];
-
-        // Estado da Seleção
         let selectedService = null;
         let selectedBarber = null;
         let selectedDate = null;
         let selectedTime = null;
+        let cloudAppointments = [];
 
-        // Inicialização
-        window.onload = function() {
+        window.onload = async function() {
             renderServices();
             renderBarbers();
             renderDates();
-            updateAppointmentsCount();
+            await fetchCloudData();
         };
 
+        async function fetchCloudData() {
+            try {
+                const response = await fetch(API_URL, {
+                    headers: { "X-Master-Key": "$2a$10$7v2uR.621qQ31rTj1S1Bhe7k1Q0J1J83W1f0Kqg23K765JzT0Q45G" }
+                });
+                const data = await response.json();
+                cloudAppointments = data.record.appointments || [];
+                updateAppointmentsCount();
+                if (selectedBarber && selectedDate) renderSlots();
+            } catch (e) {
+                cloudAppointments = JSON.parse(localStorage.getItem('imperial_appointments')) || [];
+            }
+        }
+
+        async function saveCloudData(newAppointmentsList) {
+            try {
+                await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Master-Key": "$2a$10$7v2uR.621qQ31rTj1S1Bhe7k1Q0J1J83W1f0Kqg23K765JzT0Q45G"
+                    },
+                    body: JSON.stringify({ appointments: newAppointmentsList })
+                });
+            } catch (e) {
+                localStorage.setItem('imperial_appointments', JSON.stringify(newAppointmentsList));
+            }
+        }
+
         function renderServices() {
-            const container = document.getElementById('services-container');
-            container.innerHTML = services.map(s => `
+            document.getElementById('services-container').innerHTML = services.map(s => `
                 <div class="service-card" onclick="selectService(${s.id})" id="srv-${s.id}">
                     <div class="service-name">${s.name}</div>
                     <div class="service-info">
@@ -720,8 +707,7 @@
         }
 
         function renderBarbers() {
-            const container = document.getElementById('barbers-container');
-            container.innerHTML = barbers.map(b => `
+            document.getElementById('barbers-container').innerHTML = barbers.map(b => `
                 <div class="barber-card" onclick="selectBarber(${b.id})" id="barber-${b.id}">
                     <div class="barber-avatar">${b.name.charAt(0)}</div>
                     <div class="barber-name">${b.name}</div>
@@ -739,34 +725,24 @@
         }
 
         function renderDates() {
-            const container = document.getElementById('dates-container');
             let html = '';
             const today = new Date();
-
             for (let i = 0; i < 12; i++) {
                 const d = new Date();
                 d.setDate(today.getDate() + i);
-                
-                // Pular domingos (0)
                 if (d.getDay() === 0) continue;
-
+                const dateStr = d.toISOString().split('T')[0];
                 const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
                 const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                
-                const dateStr = d.toISOString().split('T')[0];
-                const dayName = dayNames[d.getDay()];
-                const dayNum = d.getDate();
-                const monthName = monthNames[d.getMonth()];
-
                 html += `
                     <div class="date-card" onclick="selectDate('${dateStr}', this)" id="date-${dateStr}">
-                        <div class="date-day">${dayName}</div>
-                        <div class="date-num">${dayNum}</div>
-                        <div class="date-month">${monthName}</div>
+                        <div class="date-day">${dayNames[d.getDay()]}</div>
+                        <div class="date-num">${d.getDate()}</div>
+                        <div class="date-month">${monthNames[d.getMonth()]}</div>
                     </div>
                 `;
             }
-            container.innerHTML = html;
+            document.getElementById('dates-container').innerHTML = html;
         }
 
         function selectDate(dateStr, el) {
@@ -778,16 +754,15 @@
             renderSlots();
         }
 
-        function renderSlots() {
+        async function renderSlots() {
+            await fetchCloudData();
             const container = document.getElementById('slots-container');
             if (!selectedBarber || !selectedDate) {
                 container.innerHTML = '<span style="font-size: 13px; color: var(--text-muted); grid-column: span 5;">Selecione o barbeiro e a data primeiro.</span>';
                 return;
             }
 
-            // Buscar agendamentos salvos para verificar bloqueios
-            let appointments = JSON.parse(localStorage.getItem('imperial_appointments')) || [];
-            let bookedTimes = appointments
+            let bookedTimes = cloudAppointments
                 .filter(a => a.barberId === selectedBarber.id && a.date === selectedDate)
                 .map(a => a.time);
 
@@ -796,13 +771,7 @@
             container.innerHTML = timeSlots.map(time => {
                 const isBooked = bookedTimes.includes(time);
                 const isSelected = selectedTime === time;
-                return `
-                    <button class="slot-btn ${isSelected ? 'selected' : ''}" 
-                            ${isBooked ? 'disabled' : ''} 
-                            onclick="selectTime('${time}')">
-                        ${time}
-                    </button>
-                `;
+                return `<button class="slot-btn ${isSelected ? 'selected' : ''}" ${isBooked ? 'disabled' : ''} onclick="selectTime('${time}')">${time}</button>`;
             }).join('');
         }
 
@@ -816,14 +785,12 @@
             document.getElementById('sum-service').innerText = selectedService ? selectedService.name : 'Selecione...';
             document.getElementById('sum-duration').innerText = selectedService ? selectedService.duration : '-';
             document.getElementById('sum-barber').innerText = selectedBarber ? selectedBarber.name : 'Selecione...';
-            
             if (selectedDate && selectedTime) {
-                const [year, month, day] = selectedDate.split('-');
-                document.getElementById('sum-datetime').innerText = `${day}/${month} às ${selectedTime}`;
+                const [y, m, d] = selectedDate.split('-');
+                document.getElementById('sum-datetime').innerText = `${d}/${m} às ${selectedTime}`;
             } else {
                 document.getElementById('sum-datetime').innerText = 'Selecione...';
             }
-
             document.getElementById('sum-price').innerText = selectedService ? `R$ ${selectedService.price.toFixed(2).replace('.', ',')}` : 'R$ 0,00';
         }
 
@@ -833,7 +800,7 @@
             input.value = v;
         }
 
-        function finishBooking() {
+        async function finishBooking() {
             const clientName = document.getElementById('client-name').value.trim();
             const clientPhone = document.getElementById('client-phone').value.trim();
             const clientObs = document.getElementById('client-obs').value.trim();
@@ -844,8 +811,8 @@
             if (!clientName) { alert("Por favor, preencha seu nome completo."); return; }
             if (clientPhone.length < 10) { alert("Por favor, informe um WhatsApp válido com DDD."); return; }
 
-            // Salvar agendamento
-            let appointments = JSON.parse(localStorage.getItem('imperial_appointments')) || [];
+            await fetchCloudData();
+
             const newAppointment = {
                 id: Date.now(),
                 serviceName: selectedService.name,
@@ -860,79 +827,54 @@
                 clientObs: clientObs
             };
 
-            appointments.push(newAppointment);
-            localStorage.setItem('imperial_appointments', JSON.stringify(appointments));
+            cloudAppointments.push(newAppointment);
+            await saveCloudData(cloudAppointments);
             updateAppointmentsCount();
 
-            // Gerar links e mensagens do WhatsApp
             const [year, month, day] = selectedDate.split('-');
             const formattedDate = `${day}/${month}/${year}`;
-
-            // Mensagem para o Cliente
-            const clientMsg = `Olá *${clientName}*! ✂️ Seu agendamento na *Barbearia Imperial* foi confirmado!\n\n📋 *Serviço:* ${selectedService.name}\n👨‍🎤 *Profissional:* ${selectedBarber.name}\n📅 *Data:* ${formattedDate} às ${selectedTime}\n💰 *Valor:* R$ ${selectedService.price.toFixed(2).replace('.', ',')}\n\nAgradecemos a preferência! Te esperamos.`;
             const cleanClientPhone = clientPhone.replace(/\D/g, '');
+            const clientMsg = `Olá *${clientName}*! ✂️ Seu agendamento na *Barbearia Imperial* foi confirmado!\n\n📋 *Serviço:* ${selectedService.name}\n👨‍🎤 *Profissional:* ${selectedBarber.name}\n📅 *Data:* ${formattedDate} às ${selectedTime}\n💰 *Valor:* R$ ${selectedService.price.toFixed(2).replace('.', ',')}`;
             const clientWaLink = `https://wa.me/55${cleanClientPhone}?text=${encodeURIComponent(clientMsg)}`;
 
-            // Mensagem para o Barbeiro
-            const barberMsg = `🔔 *Novo Agendamento Recebido!*\n\nCliente: *${clientName}*\nServiço: ${selectedService.name}\nData: ${formattedDate} às ${selectedTime}\nObs: ${clientObs || 'Nenhuma'}\nContato do Cliente: wa.me/55${cleanClientPhone}`;
+            const barberMsg = `🔔 *Novo Agendamento Recebido!*\n\nCliente: *${clientName}*\nServiço: ${selectedService.name}\nData: ${formattedDate} às ${selectedTime}\nObs: ${clientObs || 'Nenhuma'}\nContato: wa.me/55${cleanClientPhone}`;
             const barberWaLink = `https://wa.me/${selectedBarber.phone}?text=${encodeURIComponent(barberMsg)}`;
 
-            // Exibir botões no modal de sucesso
-            const btnArea = document.getElementById('whatsapp-buttons-area');
-            btnArea.innerHTML = `
+            document.getElementById('whatsapp-buttons-area').innerHTML = `
                 <a href="${clientWaLink}" target="_blank" class="whatsapp-btn">💬 Enviar Confirmação para o Cliente</a>
                 <a href="${barberWaLink}" target="_blank" class="whatsapp-btn barber">📲 Notificar Barbeiro (${selectedBarber.name})</a>
             `;
 
-            // Abrir automaticamente os links do WhatsApp
             window.open(clientWaLink, '_blank');
-            setTimeout(() => {
-                window.open(barberWaLink, '_blank');
-            }, 800);
-
-            // Mostrar modal de sucesso
+            setTimeout(() => window.open(barberWaLink, '_blank'), 800);
             document.getElementById('success-modal').classList.add('active');
         }
 
         function closeSuccessModal() {
             document.getElementById('success-modal').classList.remove('active');
-            // Limpar formulário
-            selectedService = null;
-            selectedBarber = null;
-            selectedDate = null;
-            selectedTime = null;
-            document.getElementById('client-name').value = '';
-            document.getElementById('client-phone').value = '';
-            document.getElementById('client-obs').value = '';
-            renderServices();
-            renderBarbers();
-            renderDates();
-            renderSlots();
-            updateSummary();
+            location.reload();
         }
 
         function updateAppointmentsCount() {
-            let appointments = JSON.parse(localStorage.getItem('imperial_appointments')) || [];
-            document.getElementById('my-count').innerText = appointments.length;
+            document.getElementById('my-count').innerText = cloudAppointments.length;
         }
 
-        function openAppointmentsModal() {
-            let appointments = JSON.parse(localStorage.getItem('imperial_appointments')) || [];
+        async function openAppointmentsModal() {
+            await fetchCloudData();
             const container = document.getElementById('appointments-list-container');
-
-            if (appointments.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Nenhum agendamento registrado neste navegador.</p>';
+            if (cloudAppointments.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Nenhum agendamento na nuvem.</p>';
             } else {
-                container.innerHTML = appointments.map(a => {
+                container.innerHTML = cloudAppointments.map(a => {
                     const [y, m, d] = a.date.split('-');
                     return `
-                        <div class="appointment-item">
+                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <div style="font-weight: 600; font-size: 14px;">${a.serviceName}</div>
-                                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${d}/${m} às ${a.time} com ${a.barberName}</div>
-                                <div style="font-size: 11px; color: var(--gold); margin-top: 2px;">Cliente: ${a.clientName}</div>
+                                <div style="font-weight:600; font-size:14px;">${a.serviceName}</div>
+                                <div style="font-size:12px; color:var(--text-muted);">${d}/${m} às ${a.time} com ${a.barberName}</div>
+                                <div style="font-size:11px; color:var(--gold);">Cliente: ${a.clientName}</div>
                             </div>
-                            <button onclick="cancelAppointment(${a.id})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px;">Cancelar</button>
+                            <button onclick="cancelClientAppointment(${a.id})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px;">Cancelar</button>
                         </div>
                     `;
                 }).join('');
@@ -940,43 +882,36 @@
             document.getElementById('appointments-modal').classList.add('active');
         }
 
-        function closeAppointmentsModal() {
-            document.getElementById('appointments-modal').classList.remove('active');
-        }
+        function closeAppointmentsModal() { document.getElementById('appointments-modal').classList.remove('active'); }
 
-        function cancelAppointment(id) {
-            if (confirm("Deseja realmente cancelar este agendamento? O horário será liberado.")) {
-                let appointments = JSON.parse(localStorage.getItem('imperial_appointments')) || [];
-                appointments = appointments.filter(a => a.id !== id);
-                localStorage.setItem('imperial_appointments', JSON.stringify(appointments));
-                updateAppointmentsCount();
+        async function cancelClientAppointment(id) {
+            if (confirm("Deseja realmente cancelar?")) {
+                cloudAppointments = cloudAppointments.filter(a => a.id !== id);
+                await saveCloudData(cloudAppointments);
                 openAppointmentsModal();
                 if (selectedDate && selectedBarber) renderSlots();
             }
         }
 
         function openConfigModal() {
-            const container = document.getElementById('barbers-config-list');
-            container.innerHTML = barbers.map((b, index) => `
+            document.getElementById('barbers-config-list').innerHTML = barbers.map((b, i) => `
                 <div class="form-group">
-                    <label class="form-label">WhatsApp do Barbeiro: <strong>${b.name}</strong></label>
-                    <input type="text" class="form-input" id="barber-phone-${index}" value="${b.phone}" placeholder="Ex: 5563999999999">
+                    <label class="form-label">WhatsApp de <strong>${b.name}</strong></label>
+                    <input type="text" class="form-input" id="barber-phone-${i}" value="${b.phone}">
                 </div>
             `).join('');
             document.getElementById('config-modal').classList.add('active');
         }
 
-        function closeConfigModal() {
-            document.getElementById('config-modal').classList.remove('active');
-        }
+        function closeConfigModal() { document.getElementById('config-modal').classList.remove('active'); }
 
         function saveBarberConfigs() {
-            barbers.forEach((b, index) => {
-                const val = document.getElementById(`barber-phone-${index}`).value.trim();
+            barbers.forEach((b, i) => {
+                const val = document.getElementById(`barber-phone-${i}`).value.trim();
                 if (val) b.phone = val;
             });
             localStorage.setItem('barbers_config', JSON.stringify(barbers));
-            alert("Configurações salvas com sucesso!");
+            alert("Salvo com sucesso!");
             closeConfigModal();
         }
     </script>
