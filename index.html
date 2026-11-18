@@ -5,87 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barbearia Imperial | Agendamento Online</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca Oficial do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-primary: #121214;
-            --bg-secondary: #18181b;
-            --bg-card: #202024;
-            --border: #2e2e36;
-            --gold: #d4af37;
-            --gold-hover: #b3922f;
-            --text-main: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --accent: #22c55e;
-            --danger: #ef4444;
+            --bg-primary: #121214; --bg-secondary: #18181b; --bg-card: #202024;
+            --border: #2e2e36; --gold: #d4af37; --gold-hover: #b3922f;
+            --text-main: #f4f4f5; --text-muted: #a1a1aa; --accent: #22c55e; --danger: #ef4444;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg-primary); color: var(--text-main); min-height: 100vh; padding-bottom: 40px; }
-
         header { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .logo-area { display: flex; align-items: center; gap: 12px; }
         .logo-icon { background: var(--gold); color: #000; width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; }
         .logo-text h1 { font-size: 18px; letter-spacing: 1px; color: var(--text-main); }
         .logo-text p { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
-
-        .header-actions { display: flex; gap: 12px; align-items: center; }
-        .btn-header { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-header { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         .btn-header:hover { border-color: var(--gold); color: var(--gold); }
-
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 380px; gap: 30px; }
         @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
-
-        .section-title { font-size: 15px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .section-title { font-size: 15px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
         .card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-
         .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-        .service-card { background: var(--bg-card); border: 2px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: 0.2s; }
+        .service-card { background: var(--bg-card); border: 2px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; }
         .service-card.selected { border-color: var(--gold); background: rgba(212, 175, 55, 0.05); }
         .service-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
         .service-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); margin-top: 10px; }
         .service-price { color: var(--gold); font-weight: 600; }
-
         .barbers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-        .barber-card { background: var(--bg-card); border: 2px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .barber-card { background: var(--bg-card); border: 2px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; }
         .barber-card.selected { border-color: var(--gold); background: rgba(212, 175, 55, 0.05); }
         .barber-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--border); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 10px auto; font-size: 18px; }
         .barber-name { font-weight: 600; font-size: 14px; }
-
         .dates-slider { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; }
         .date-card { min-width: 75px; background: var(--bg-card); border: 2px solid var(--border); border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; }
         .date-card.selected { border-color: var(--gold); background: rgba(212, 175, 55, 0.05); }
         .date-day { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
         .date-num { font-size: 18px; font-weight: 700; margin: 4px 0; }
         .date-month { font-size: 11px; color: var(--gold); }
-
         .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-top: 15px; }
         .slot-btn { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-main); cursor: pointer; }
         .slot-btn.selected { background: var(--gold); color: #000; border-color: var(--gold); }
         .slot-btn:disabled { background: #151518; color: #555; border-color: #222; cursor: not-allowed; text-decoration: line-through; }
-
         .form-group { margin-bottom: 16px; }
         .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
         .form-input { width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; }
         .form-input:focus { border-color: var(--gold); }
-
         .summary-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 24px; position: sticky; top: 90px; height: fit-content; }
-        .summary-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .summary-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; justify-content: space-between; }
         .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
         .summary-item span:first-child { color: var(--text-muted); }
         .summary-item span:last-child { font-weight: 600; text-align: right; }
-        .summary-total { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 700; }
+        .summary-total { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; }
         .summary-total span:last-child { color: var(--gold); font-size: 22px; }
-
-        .btn-submit { width: 100%; background: var(--gold); color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-submit { width: 100%; background: var(--gold); color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; }
         .btn-submit:hover { background: var(--gold-hover); }
-
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 16px; width: 90%; max-width: 500px; padding: 30px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-size: 18px; font-weight: 700; color: var(--gold); }
-        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
-        .success-box { text-align: center; padding: 10px 0; }
         .whatsapp-btn { background: #25d366; color: #fff; border: none; border-radius: 8px; padding: 12px; width: 100%; font-weight: 600; margin-top: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 14px; }
         .whatsapp-btn.barber { background: #128c7e; }
     </style>
@@ -99,20 +76,13 @@
         </div>
         <div class="header-actions">
             <button class="btn-header" onclick="openAppointmentsModal()">📅 Meus Agendamentos (<span id="my-count">0</span>)</button>
-            <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
         </div>
     </header>
 
     <div class="container">
         <div class="booking-flow">
-            <div class="card">
-                <div class="section-title">1. Escolha o Serviço</div>
-                <div class="services-grid" id="services-container"></div>
-            </div>
-            <div class="card">
-                <div class="section-title">2. Escolha o Profissional</div>
-                <div class="barbers-grid" id="barbers-container"></div>
-            </div>
+            <div class="card"><div class="section-title">1. Escolha o Serviço</div><div class="services-grid" id="services-container"></div></div>
+            <div class="card"><div class="section-title">2. Escolha o Profissional</div><div class="barbers-grid" id="barbers-container"></div></div>
             <div class="card">
                 <div class="section-title">3. Data e Horário</div>
                 <div class="dates-slider" id="dates-container"></div>
@@ -142,10 +112,9 @@
 
     <div class="modal-overlay" id="success-modal">
         <div class="modal-content">
-            <div class="success-box">
+            <div style="text-align: center; padding: 10px 0;">
                 <div style="font-size: 50px; margin-bottom: 15px;">🎉</div>
                 <h2 style="color: var(--gold); margin-bottom: 10px;">Agendamento Realizado!</h2>
-                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Reserva salva com sucesso!</p>
                 <div id="whatsapp-buttons-area"></div>
                 <button class="btn-header" style="width: 100%; margin-top: 15px; justify-content: center;" onclick="closeSuccessModal()">Novo Agendamento</button>
             </div>
@@ -154,20 +123,18 @@
 
     <div class="modal-overlay" id="appointments-modal">
         <div class="modal-content">
-            <div class="modal-header"><div class="modal-title">Agendamentos Realizados</div><button class="close-btn" onclick="closeAppointmentsModal()">✕</button></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;"><div style="color:var(--gold); font-weight:700;">Meus Agendamentos</div><button onclick="closeAppointmentsModal()" style="background:none; border:none; color:#fff; cursor:pointer;">✕</button></div>
             <div id="appointments-list-container"></div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="config-modal">
-        <div class="modal-content">
-            <div class="modal-header"><div class="modal-title">Configurar WhatsApp dos Barbeiros</div><button class="close-btn" onclick="closeConfigModal()">✕</button></div>
-            <div id="barbers-config-list"></div>
-            <button class="btn-submit" onclick="saveBarberConfigs()" style="margin-top: 20px;">Salvar</button>
-        </div>
-    </div>
-
     <script>
+        // CONFIGURAÇÃO DO SUPABASE (Substitua com a URL e a Chave Pública do seu Supabase)
+        const SUPABASE_URL = "https://supabase.com/dashboard/project/ztkygauprykpenuepwgj/settings/general";
+        const SUPABASE_ANON_KEY = "sb_publishable_E0G5N2XS0r9bx8AgF2y9xg_Zt0VtMqM";
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const services = [
             { id: 1, name: "Corte Degradê", price: 45.00, duration: "30 min" },
             { id: 2, name: "Barba Terapia", price: 40.00, duration: "30 min" },
@@ -177,35 +144,48 @@
             { id: 6, name: "Corte Kids", price: 40.00, duration: "30 min" }
         ];
 
-        let defaultBarbers = [
+        let barbers = [
             { id: 1, name: "Elilto Lima", specialty: "Degradê & Barba", phone: "5563992773338" },
             { id: 2, name: "Marcos Vinicius", specialty: "Cortes Clássicos", phone: "5563999999999" },
             { id: 3, name: "Lucas Souza", specialty: "Estilo & Pigmentação", phone: "5563988888888" }
         ];
 
-        let barbers = JSON.parse(localStorage.getItem('barbers_config')) || defaultBarbers;
         const timeSlots = ["09:00", "09:40", "10:20", "11:00", "11:40", "13:00", "13:40", "14:20", "15:00", "15:40", "16:20", "17:00", "17:40", "18:20", "19:00"];
 
         let selectedService = null;
         let selectedBarber = null;
         let selectedDate = null;
         let selectedTime = null;
+        let cloudAppointments = [];
 
-        window.onload = function() {
+        window.onload = async function() {
             renderServices();
             renderBarbers();
             renderDates();
-            updateAppointmentsCount();
+            await fetchCloud();
         };
 
-        function getAppointments() {
+        async function fetchCloud() {
             try {
-                return JSON.parse(localStorage.getItem('imperial_appointments')) || [];
-            } catch(e) { return []; }
-        }
-
-        function saveAppointments(list) {
-            localStorage.setItem('imperial_appointments', JSON.stringify(list));
+                let { data, error } = await supabaseClient.from('appointments').select('*');
+                if (!error && data) {
+                    cloudAppointments = data.map(item => ({
+                        id: item.id,
+                        serviceName: item.service_name,
+                        servicePrice: item.service_price,
+                        barberId: item.barber_id,
+                        barberName: item.barber_name,
+                        barberPhone: item.barber_phone,
+                        date: item.appointment_date,
+                        time: item.appointment_time,
+                        clientName: item.client_name,
+                        clientPhone: item.client_phone,
+                        clientObs: item.client_obs
+                    }));
+                }
+            } catch(e) {}
+            updateCount();
+            if (selectedBarber && selectedDate) renderSlots();
         }
 
         function renderServices() {
@@ -252,13 +232,7 @@
                 const dateStr = d.toISOString().split('T')[0];
                 const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
                 const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                html += `
-                    <div class="date-card" onclick="selectDate('${dateStr}', this)" id="date-${dateStr}">
-                        <div class="date-day">${dayNames[d.getDay()]}</div>
-                        <div class="date-num">${d.getDate()}</div>
-                        <div class="date-month">${monthNames[d.getMonth()]}</div>
-                    </div>
-                `;
+                html += `<div class="date-card" onclick="selectDate('${dateStr}', this)" id="date-${dateStr}"><div class="date-day">${dayNames[d.getDay()]}</div><div class="date-num">${d.getDate()}</div><div class="date-month">${monthNames[d.getMonth()]}</div></div>`;
             }
             document.getElementById('dates-container').innerHTML = html;
         }
@@ -272,20 +246,15 @@
             renderSlots();
         }
 
-        function renderSlots() {
+        async function renderSlots() {
+            await fetchCloud();
             const container = document.getElementById('slots-container');
             if (!selectedBarber || !selectedDate) {
-                container.innerHTML = '<span style="font-size: 13px; color: var(--text-muted); grid-column: span 5;">Selecione o barbeiro e a data.</span>';
+                container.innerHTML = '<span style="font-size: 13px; color: var(--text-muted);">Selecione barbeiro e data.</span>';
                 return;
             }
-            let appointments = getAppointments();
-            let bookedTimes = appointments.filter(a => a.barberId === selectedBarber.id && a.date === selectedDate).map(a => a.time);
-
-            document.getElementById('slots-label').innerText = `Horários para ${selectedBarber.name}:`;
-            container.innerHTML = timeSlots.map(time => {
-                const isBooked = bookedTimes.includes(time);
-                return `<button class="slot-btn ${selectedTime === time ? 'selected' : ''}" ${isBooked ? 'disabled' : ''} onclick="selectTime('${time}')">${time}</button>`;
-            }).join('');
+            let booked = cloudAppointments.filter(a => a.barberId === selectedBarber.id && a.date === selectedDate).map(a => a.time);
+            container.innerHTML = timeSlots.map(time => `<button class="slot-btn ${selectedTime === time ? 'selected' : ''}" ${booked.includes(time) ? 'disabled' : ''} onclick="selectTime('${time}')">${time}</button>`).join('');
         }
 
         function selectTime(time) { selectedTime = time; renderSlots(); updateSummary(); }
@@ -294,116 +263,72 @@
             document.getElementById('sum-service').innerText = selectedService ? selectedService.name : 'Selecione...';
             document.getElementById('sum-duration').innerText = selectedService ? selectedService.duration : '-';
             document.getElementById('sum-barber').innerText = selectedBarber ? selectedBarber.name : 'Selecione...';
-            if (selectedDate && selectedTime) {
-                const [y, m, d] = selectedDate.split('-');
-                document.getElementById('sum-datetime').innerText = `${d}/${m} às ${selectedTime}`;
-            } else { document.getElementById('sum-datetime').innerText = 'Selecione...'; }
+            document.getElementById('sum-datetime').innerText = (selectedDate && selectedTime) ? `${selectedDate.split('-').reverse().join('/')} às ${selectedTime}` : 'Selecione...';
             document.getElementById('sum-price').innerText = selectedService ? `R$ ${selectedService.price.toFixed(2).replace('.', ',')}` : 'R$ 0,00';
         }
 
-        function maskPhone(input) {
-            let v = input.value.replace(/\D/g, "");
-            if (v.length > 11) v = v.slice(0, 11);
-            input.value = v;
-        }
+        function maskPhone(i) { i.value = i.value.replace(/\D/g, "").slice(0, 11); }
 
-        function finishBooking() {
-            const clientName = document.getElementById('client-name').value.trim();
-            const clientPhone = document.getElementById('client-phone').value.trim();
-            const clientObs = document.getElementById('client-obs').value.trim();
+        async function finishBooking() {
+            const name = document.getElementById('client-name').value.trim();
+            const phone = document.getElementById('client-phone').value.trim();
+            const obs = document.getElementById('client-obs').value.trim();
 
-            if (!selectedService) { alert("Selecione um serviço."); return; }
-            if (!selectedBarber) { alert("Selecione um barbeiro."); return; }
-            if (!selectedDate || !selectedTime) { alert("Selecione data e horário."); return; }
-            if (!clientName) { alert("Preencha seu nome."); return; }
-            if (clientPhone.length < 10) { alert("Informe um WhatsApp válido com DDD."); return; }
+            if (!selectedService || !selectedBarber || !selectedDate || !selectedTime || !name || phone.length < 10) {
+                alert("Preencha todos os campos obrigatórios corretamente."); return;
+            }
 
-            let appointments = getAppointments();
-            const newAppointment = {
-                id: Date.now(),
-                serviceName: selectedService.name,
-                servicePrice: selectedService.price,
-                barberId: selectedBarber.id,
-                barberName: selectedBarber.name,
-                barberPhone: selectedBarber.phone,
-                date: selectedDate,
-                time: selectedTime,
-                clientName: clientName,
-                clientPhone: clientPhone,
-                clientObs: clientObs
+            await fetchCloud();
+            const newId = Date.now();
+            const record = {
+                id: newId,
+                service_name: selectedService.name,
+                service_price: selectedService.price,
+                barber_id: selectedBarber.id,
+                barber_name: selectedBarber.name,
+                barber_phone: selectedBarber.phone,
+                appointment_date: selectedDate,
+                appointment_time: selectedTime,
+                client_name: name,
+                client_phone: phone,
+                client_obs: obs
             };
 
-            appointments.push(newAppointment);
-            saveAppointments(appointments);
-            updateAppointmentsCount();
+            let { error } = await supabaseClient.from('appointments').insert([record]);
+            if (error) {
+                alert("Erro ao salvar agendamento. Verifique a conexão.");
+                return;
+            }
 
-            const [year, month, day] = selectedDate.split('-');
-            const formattedDate = `${day}/${month}/${year}`;
-            const cleanClientPhone = clientPhone.replace(/\D/g, '');
-            const clientMsg = `Olá *${clientName}*! ✂️ Seu agendamento na *Barbearia Imperial* foi confirmado!\n\n📋 *Serviço:* ${selectedService.name}\n👨‍🎤 *Profissional:* ${selectedBarber.name}\n📅 *Data:* ${formattedDate} às ${selectedTime}\n💰 *Valor:* R$ ${selectedService.price.toFixed(2).replace('.', ',')}`;
-            const clientWaLink = `https://wa.me/55${cleanClientPhone}?text=${encodeURIComponent(clientMsg)}`;
+            updateCount();
 
-            const barberMsg = `🔔 *Novo Agendamento Recebido!*\n\nCliente: *${clientName}*\nServiço: ${selectedService.name}\nData: ${formattedDate} às ${selectedTime}\nObs: ${clientObs || 'Nenhuma'}\nContato: wa.me/55${cleanClientPhone}`;
-            const barberWaLink = `https://wa.me/${selectedBarber.phone}?text=${encodeURIComponent(barberMsg)}`;
+            const [y, m, d] = selectedDate.split('-');
+            const msgCli = `Olá *${name}*! Seu agendamento na *Barbearia Imperial* foi confirmado para ${d}/${m}/${y} às ${selectedTime} com ${selectedBarber.name}.`;
+            const msgBarb = `🔔 *Novo Agendamento!*\nCliente: ${name}\nServiço: ${selectedService.name}\nData: ${d}/${m}/${y} às ${selectedTime}`;
 
             document.getElementById('whatsapp-buttons-area').innerHTML = `
-                <a href="${clientWaLink}" target="_blank" class="whatsapp-btn">💬 Enviar Confirmação para o Cliente</a>
-                <a href="${barberWaLink}" target="_blank" class="whatsapp-btn barber">📲 Notificar Barbeiro (${selectedBarber.name})</a>
+                <a href="https://wa.me/55${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msgCli)}" target="_blank" class="whatsapp-btn">💬 Enviar WhatsApp para Cliente</a>
+                <a href="https://wa.me/${selectedBarber.phone}?text=${encodeURIComponent(msgBarb)}" target="_blank" class="whatsapp-btn barber">📲 Notificar Barbeiro</a>
             `;
-
-            window.open(clientWaLink, '_blank');
-            setTimeout(() => window.open(barberWaLink, '_blank'), 800);
+            window.open(`https://wa.me/55${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msgCli)}`, '_blank');
             document.getElementById('success-modal').classList.add('active');
         }
 
         function closeSuccessModal() { document.getElementById('success-modal').classList.remove('active'); location.reload(); }
-        function updateAppointmentsCount() { document.getElementById('my-count').innerText = getAppointments().length; }
-
-        function openAppointmentsModal() {
-            const appointments = getAppointments();
-            const container = document.getElementById('appointments-list-container');
-            if (appointments.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Nenhum agendamento.</p>';
-            } else {
-                container.innerHTML = appointments.map(a => {
-                    const [y, m, d] = a.date.split('-');
-                    return `
-                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div style="font-weight:600; font-size:14px;">${a.serviceName}</div>
-                                <div style="font-size:12px; color:var(--text-muted);">${d}/${m} às ${a.time} com ${a.barberName}</div>
-                                <div style="font-size:11px; color:var(--gold);">Cliente: ${a.clientName}</div>
-                            </div>
-                            <button onclick="cancelClient(${a.id})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px;">Cancelar</button>
-                        </div>
-                    `;
-                }).join('');
-            }
+        function updateCount() { document.getElementById('my-count').innerText = cloudAppointments.length; }
+        async function openAppointmentsModal() {
+            await fetchCloud();
+            document.getElementById('appointments-list-container').innerHTML = cloudAppointments.length === 0 ? '<p style="color:#a1a1aa; text-align:center;">Nenhum agendamento.</p>' : cloudAppointments.map(a => `<div style="background:#202024; padding:12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${a.serviceName}</strong><br><span style="font-size:12px; color:#a1a1aa;">${a.date.split('-').reverse().join('/')} às ${a.time} - ${a.barberName} (${a.clientName})</span></div><button onclick="cancelApp(${a.id})" style="background:none; border:none; color:#ef4444; cursor:pointer;">Cancelar</button></div>`).join('');
             document.getElementById('appointments-modal').classList.add('active');
         }
-
         function closeAppointmentsModal() { document.getElementById('appointments-modal').classList.remove('active'); }
-        function cancelClient(id) {
+        async function cancelApp(id) {
             if (confirm("Deseja cancelar?")) {
-                let list = getAppointments().filter(a => a.id !== id);
-                saveAppointments(list);
+                await supabaseClient.from('appointments').delete().eq('id', id);
+                await fetchCloud();
                 openAppointmentsModal();
                 if (selectedDate && selectedBarber) renderSlots();
             }
-        }
-
-        function openConfigModal() {
-            document.getElementById('barbers-config-list').innerHTML = barbers.map((b, i) => `
-                <div class="form-group"><label class="form-label">WhatsApp de <strong>${b.name}</strong></label><input type="text" class="form-input" id="barber-phone-${i}" value="${b.phone}"></div>
-            `).join('');
-            document.getElementById('config-modal').classList.add('active');
-        }
-        function closeConfigModal() { document.getElementById('config-modal').classList.remove('active'); }
-        function saveBarberConfigs() {
-            barbers.forEach((b, i) => { const val = document.getElementById(`barber-phone-${i}`).value.trim(); if (val) b.phone = val; });
-            localStorage.setItem('barbers_config', JSON.stringify(barbers));
-            alert("Salvo!");
-            closeConfigModal();
         }
     </script>
 </body>
