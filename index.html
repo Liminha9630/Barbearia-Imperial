@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbearia Imperial | Agendamento Online</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter e Playfair Display para títulos clássicos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones elegantes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#FBBF24',
+                            500: '#D97706',
+                            600: '#B45309',
+                            accent: '#C89B3C',
+                            light: '#E2B857'
+                        },
+                        dark: {
+                            950: '#09090B',
+                            900: '#121215',
+                            800: '#18181B',
+                            700: '#27272A'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark-950 text-zinc-100 font-sans antialiased selection:bg-gold-accent selection:text-dark-950 min-h-screen flex flex-col">
+
+    <!-- Notificação Toast Flutuante -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Cabeçalho / Navegação -->
+    <header class="sticky top-0 z-40 bg-dark-950/90 backdrop-blur-md border-b border-zinc-800/80">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-gold-light to-gold-600 flex items-center justify-center text-dark-950 shadow-lg shadow-amber-500/10 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-scissors text-xl -rotate-45"></i>
+                </div>
+                <div>
+                    <span class="font-serif text-xl sm:text-2xl font-bold tracking-wide text-white block leading-none">IMPERIAL</span>
+                    <span class="text-[10px] uppercase tracking-[0.25em] text-gold-light font-semibold">Barbearia Clássica</span>
+                </div>
+            </a>
+
+            <!-- Ações de Navegação -->
+            <div class="flex items-center gap-2 sm:gap-4">
+                <span id="sync-status" class="hidden md:inline-flex items-center gap-1.5 text-xs text-zinc-400 bg-dark-900 border border-zinc-800 px-2.5 py-1.5 rounded-lg">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" id="sync-dot"></span>
+                    <span id="sync-text">Conectando...</span>
+                </span>
+                <button onclick="openPanelModal('appointments')" class="relative px-3.5 py-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 border border-zinc-700/80 text-zinc-200 text-sm font-medium transition-all flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-check text-gold-light"></i>
+                    <span class="hidden sm:inline">Meus Agendamentos</span>
+                    <span class="sm:hidden">Agenda</span>
+                    <span id="badge-count" class="bg-gold-accent text-dark-950 text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
+                </button>
+                <button onclick="openPanelModal('settings')" title="Configurar WhatsApp dos Barbeiros" class="p-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 border border-zinc-700/80 text-zinc-400 hover:text-gold-light transition-all">
+                    <i class="fa-solid fa-gear text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner Compacto -->
+    <section class="relative overflow-hidden border-b border-zinc-800/80 bg-dark-900">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/10 via-dark-900 to-dark-950 pointer-events-none"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 relative z-10">
+            <div class="max-w-2xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-gold-light text-xs font-semibold uppercase tracking-wider mb-4">
+                    <span class="w-2 h-2 rounded-full bg-gold-light animate-pulse"></span>
+                    Atendimento com Hora Marcada
+                </div>
+                <h1 class="font-serif text-3xl sm:text-5xl font-bold text-white leading-tight mb-4">
+                    Estilo, precisão e tradição em cada detalhe.
+                </h1>
+                <p class="text-zinc-400 text-base sm:text-lg mb-6 leading-relaxed">
+                    Escolha seu serviço, selecione seu barbeiro de preferência e garanta seu horário em menos de 1 minuto com confirmação imediata via WhatsApp.
+                </p>
+                <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-zinc-300">
+                    <span class="flex items-center gap-2 bg-dark-800/80 px-3 py-1.5 rounded-lg border border-zinc-800">
+                        <i class="fa-solid fa-location-dot text-gold-light"></i> Av. Paulista, 1500 - Sala 42
+                    </span>
+                    <span class="flex items-center gap-2 bg-dark-800/80 px-3 py-1.5 rounded-lg border border-zinc-800">
+                        <i class="fa-regular fa-clock text-gold-light"></i> Seg a Sáb: 09h às 20h
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conteúdo Principal: Fluxo de Agendamento -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Coluna Esquerda: Etapas do Agendamento (8 colunas no desktop) -->
+            <div class="lg:col-span-8 space-y-8">
+                
+                <!-- ETAPA 1: SERVIÇOS -->
+                <section id="step-1" class="bg-dark-900 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-gold-accent text-dark-950 font-bold flex items-center justify-center text-sm">1</span>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-white">Escolha o Serviço</h2>
+                                <p class="text-xs sm:text-sm text-zinc-400">Selecione o procedimento desejado</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="services-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <!-- Serviços renderizados via JS -->
+                    </div>
+                </section>
+
+                <!-- ETAPA 2: PROFISSIONAL -->
+                <section id="step-2" class="bg-dark-900 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-gold-accent text-dark-950 font-bold flex items-center justify-center text-sm">2</span>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-white">Escolha o Barbeiro</h2>
+                                <p class="text-xs sm:text-sm text-zinc-400">Profissionais especialistas prontos para atender você</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="barbers-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Barbeiros renderizados via JS -->
+                    </div>
+                </section>
+
+                <!-- ETAPA 3: DATA E HORÁRIO -->
+                <section id="step-3" class="bg-dark-900 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-gold-accent text-dark-950 font-bold flex items-center justify-center text-sm">3</span>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-white">Data e Horário</h2>
+                                <p class="text-xs sm:text-sm text-zinc-400">Horários em cinza já estão reservados</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seletor de Datas (Próximos dias) -->
+                    <div class="mb-6">
+                        <label class="block text-xs uppercase tracking-wider text-zinc-400 font-semibold mb-3">Selecione o Dia</label>
+                        <div id="dates-scroller" class="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
+                            <!-- Datas geradas via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Grade de Horários -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="block text-xs uppercase tracking-wider text-zinc-400 font-semibold">Horários Disponíveis</label>
+                            <div class="flex items-center gap-3">
+                                <span class="text-[11px] text-zinc-500 flex items-center gap-1"><i class="fa-solid fa-lock text-zinc-600"></i> Ocupado</span>
+                                <span id="selected-barber-hint" class="text-xs text-gold-light"></span>
+                            </div>
+                        </div>
+                        <div id="time-slots-grid" class="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
+                            <!-- Horários gerados via JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ETAPA 4: DADOS DO CLIENTE -->
+                <section id="step-4" class="bg-dark-900 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="w-8 h-8 rounded-full bg-gold-accent text-dark-950 font-bold flex items-center justify-center text-sm">4</span>
+                        <div>
+                            <h2 class="text-lg sm:text-xl font-bold text-white">Seus Dados</h2>
+                            <p class="text-xs sm:text-sm text-zinc-400">Para enviarmos a confirmação no seu WhatsApp</p>
+                        </div>
+                    </div>
+
+                    <form id="booking-form" onsubmit="handleBookingSubmit(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="client-name" class="block text-sm font-medium text-zinc-300 mb-1.5">Nome Completo *</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-500">
+                                        <i class="fa-regular fa-user"></i>
+                                    </span>
+                                    <input type="text" id="client-name" required placeholder="Ex: João Pedro Santos"
+                                        class="w-full pl-10 pr-4 py-3 bg-dark-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-gold-light focus:ring-1 focus:ring-gold-light transition-colors">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="client-whatsapp" class="block text-sm font-medium text-zinc-300 mb-1.5">Seu WhatsApp (com DDD) *</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-emerald-500">
+                                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                                    </span>
+                                    <input type="tel" id="client-whatsapp" required placeholder="(11) 99999-9999" maxlength="15" oninput="maskPhone(this)"
+                                        class="w-full pl-10 pr-4 py-3 bg-dark-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-gold-light focus:ring-1 focus:ring-gold-light transition-colors">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="client-notes" class="block text-sm font-medium text-zinc-300 mb-1.5">Observações (opcional)</label>
+                            <input type="text" id="client-notes" placeholder="Ex: Degradê navalhado, aparar bigode..."
+                                class="w-full px-4 py-2.5 bg-dark-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-gold-light transition-colors text-sm">
+                        </div>
+
+                        <!-- Botão Mobile de Confirmar (visível também no desktop) -->
+                        <div class="pt-2 lg:hidden">
+                            <button type="submit" id="btn-submit-mobile" class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-gold-light to-gold-500 hover:from-amber-300 hover:to-gold-400 text-dark-950 font-bold text-base shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fa-brands fa-whatsapp text-lg"></i>
+                                <span>Concluir Agendamento</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Coluna Direita: Resumo Flutuante (4 colunas no desktop) -->
+            <aside class="lg:col-span-4 lg:sticky lg:top-28">
+                <div class="bg-dark-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl">
+                    <div class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-5">
+                        <h3 class="font-serif text-xl font-bold text-white">Resumo da Reserva</h3>
+                        <i class="fa-solid fa-receipt text-gold-light"></i>
+                    </div>
+
+                    <div class="space-y-4 text-sm">
+                        <!-- Serviço Selecionado -->
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="text-zinc-400">Serviço:</span>
+                            <span id="summary-service" class="font-semibold text-white text-right">Selecione um serviço</span>
+                        </div>
+
+                        <!-- Duração -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-400">Duração estimada:</span>
+                            <span id="summary-duration" class="text-zinc-300">--</span>
+                        </div>
+
+                        <!-- Profissional -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-400">Barbeiro:</span>
+                            <span id="summary-barber" class="font-semibold text-white">--</span>
+                        </div>
+
+                        <!-- Data e Hora -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-400">Data e Horário:</span>
+                            <span id="summary-datetime" class="font-semibold text-gold-light">--</span>
+                        </div>
+
+                        <div class="border-t border-zinc-800 my-4 pt-4 flex justify-between items-center">
+                            <span class="text-base font-medium text-zinc-300">Valor Total</span>
+                            <span id="summary-price" class="text-2xl font-bold text-gold-light">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Botão Confirmar no Resumo -->
+                    <button type="button" id="btn-submit-desktop" onclick="document.getElementById('booking-form').requestSubmit()" 
+                        class="mt-6 w-full py-4 px-5 rounded-xl bg-gradient-to-r from-gold-light to-gold-500 hover:from-amber-300 hover:to-gold-400 text-dark-950 font-bold text-base shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>Concluir Agendamento</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <p class="text-[11px] text-zinc-500 text-center mt-3 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-gold-light"></i>
+                        Disparo automático para Cliente e Barbeiro ao concluir
+                    </p>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="border-t border-zinc-800/80 bg-dark-900/50 py-8 mt-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-scissors text-gold-light"></i>
+                <span class="font-semibold text-zinc-300">Barbearia Imperial</span> &copy; 2026. Todos os direitos reservados.
+            </div>
+            <div>
+                Pagamento realizado presencialmente na barbearia (Pix, Cartão ou Dinheiro).
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 1: CONFIRMAÇÃO DO AGENDAMENTO E ENVIO DE WHATSAPP               -->
+    <!-- ===================================================================== -->
+    <div id="confirmation-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-dark-900 border border-zinc-700 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-8 animate-fade-in">
+            <!-- Ícone de Sucesso -->
+            <div class="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-check text-3xl"></i>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-white text-center">Horário Reservado!</h3>
+            <p class="text-zinc-400 text-sm text-center mt-1 mb-4">
+                Agendamento confirmado na nuvem e envio via WhatsApp iniciado.
+            </p>
+
+            <!-- Banner de Status do Disparo Automático -->
+            <div id="auto-dispatch-banner" class="mb-5 rounded-xl p-3.5 border text-xs flex items-start gap-3 bg-emerald-950/40 border-emerald-500/40 text-emerald-200">
+                <i id="auto-dispatch-icon" class="fa-solid fa-paper-plane text-emerald-400 text-base mt-0.5"></i>
+                <div id="auto-dispatch-status" class="space-y-1 leading-relaxed">
+                    Redirecionando para o WhatsApp do Cliente e do Barbeiro...
+                </div>
+            </div>
+
+            <!-- Cartão de Detalhes -->
+            <div id="modal-booking-details" class="bg-dark-800/90 border border-zinc-700/80 rounded-xl p-4 mb-5 space-y-2.5 text-sm">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <!-- Botões de Ação WhatsApp -->
+            <div class="space-y-3">
+                <!-- 1. WhatsApp do Cliente -->
+                <div id="card-wa-client" class="bg-dark-800 border border-emerald-500/30 rounded-xl p-3.5 transition-all">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-check"></i> 1. Comprovante para o Cliente
+                        </span>
+                        <button type="button" onclick="copyMessage('client')" class="text-xs text-zinc-400 hover:text-white flex items-center gap-1 bg-dark-700 px-2 py-1 rounded-md transition-colors">
+                            <i class="fa-regular fa-copy"></i> Copiar texto
+                        </button>
+                    </div>
+                    <a id="btn-wa-client" href="#" target="_blank" rel="noopener noreferrer"
+                        class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-xl"></i>
+                        <span>Abrir WhatsApp do Cliente</span>
+                    </a>
+                </div>
+
+                <!-- 2. WhatsApp do Barbeiro -->
+                <div id="card-wa-barber" class="bg-dark-800 border border-amber-500/30 rounded-xl p-3.5 transition-all">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-gold-light flex items-center gap-1.5">
+                            <i class="fa-solid fa-scissors"></i> 2. Notificação para o Barbeiro
+                        </span>
+                        <button type="button" onclick="copyMessage('barber')" class="text-xs text-zinc-400 hover:text-white flex items-center gap-1 bg-dark-700 px-2 py-1 rounded-md transition-colors">
+                            <i class="fa-regular fa-copy"></i> Copiar texto
+                        </button>
+                    </div>
+                    <a id="btn-wa-barber" href="#" target="_blank" rel="noopener noreferrer"
+                        class="w-full py-3 px-4 rounded-xl bg-dark-700 hover:bg-zinc-700 border border-gold-accent/50 text-gold-light font-bold text-sm transition-all flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-xl text-emerald-400"></i>
+                        <span id="btn-wa-barber-text">Notificar Barbeiro no WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+
+            <button type="button" onclick="closeConfirmationModal()" class="mt-6 w-full py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium text-sm transition-colors">
+                Fechar Comprovante
+            </button>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 2: PAINEL DE AGENDAMENTOS & CONFIGURAÇÕES DOS BARBEIROS         -->
+    <!-- ===================================================================== -->
+    <div id="panel-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-dark-900 border border-zinc-700 rounded-2xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+            <!-- Cabeçalho do Modal -->
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-6">
+                <div class="flex gap-2">
+                    <button id="tab-btn-appointments" onclick="switchPanelTab('appointments')" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-gold-accent text-dark-950">
+                        <i class="fa-regular fa-calendar-check mr-1.5"></i> Agendamentos
+                    </button>
+                    <button id="tab-btn-settings" onclick="switchPanelTab('settings')" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-dark-800 text-zinc-400 hover:text-white">
+                        <i class="fa-brands fa-whatsapp mr-1.5"></i> WhatsApp dos Barbeiros
+                    </button>
+                </div>
+                <button onclick="closePanelModal()" class="w-9 h-9 rounded-xl bg-dark-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            <!-- Conteúdo Aba 2: Configurar WhatsApp dos Barbeiros & Automação -->
+            <div id="panel-tab-settings" class="hidden space-y-5 max-h-[70vh] overflow-y-auto pr-1">
+                <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-xs text-amber-200/90 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info text-gold-light text-base mt-0.5"></i>
+                    <p>Configure abaixo o número de WhatsApp real de cada barbeiro (com DDD). Ao concluir um agendamento, as mensagens serão enviadas automaticamente para o cliente e para o profissional escolhido.</p>
+                </div>
+
+                <div id="barbers-settings-list" class="space-y-4">
+                    <!-- Inputs via JS -->
+                </div>
+
+                <!-- Seção Opcional: Automação Avançada via Webhook / API WhatsApp -->
+                <div class="bg-dark-800/90 border border-zinc-700/80 rounded-xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-robot text-gold-light"></i>
+                            Automação Avançada (Webhook / API WhatsApp - Opcional)
+                        </h4>
+                        <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-700 text-zinc-300 font-semibold">Segundo Plano</span>
+                    </div>
+                    <p class="text-xs text-zinc-400 leading-relaxed">
+                        Possui integração com <strong>Make, n8n, Zapier, Evolution API ou Z-API</strong>? Cole a URL do seu Webhook abaixo para disparar ambas as mensagens 100% em segundo plano sem depender da abertura de janelas no navegador.
+                    </p>
+                    <div>
+                        <label for="webhook-url-input" class="block text-[11px] text-zinc-400 mb-1">URL do Webhook (POST JSON)</label>
+                        <input type="url" id="webhook-url-input" placeholder="https://hook.us1.make.com/seu-webhook-aqui"
+                            class="w-full px-3 py-2.5 bg-dark-900 border border-zinc-700 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-gold-light">
+                    </div>
+                </div>
+
+                <div class="pt-2 flex justify-end">
+                    <button id="btn-save-barbers" onclick="saveBarbersSettings()" class="px-6 py-3 rounded-xl bg-gold-accent hover:bg-gold-light text-dark-950 font-bold text-sm transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Configurações na Nuvem
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK & Lógica em Tempo Real -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =========================================================================
+        // 1. CONFIGURAÇÃO DO FIREBASE E VARIÁVEIS GLOBAIS
+        // =========================================================================
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'barbearia-imperial-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+
+        let app = null;
+        let auth = null;
+        let db = null;
+        let currentUser = null;
+        let isSubmitting = false;
+
+        const SHOP_INFO = {
+            name: "Barbearia Imperial",
+            address: "Av. Paulista, 1500 - Sala 42, Bela Vista"
+        };
+
+        const SERVICES = [
+            { id: 'corte', name: 'Corte Degradê / Social', duration: 40, price: 50.00, icon: 'fa-scissors', desc: 'Corte na tesoura ou máquina com acabamento na navalha e lavagem.' },
+            { id: 'barba', name: 'Barba Terapia', duration: 30, price: 40.00, icon: 'fa-spa', desc: 'Toalha quente, esfoliação facial, óleo essencial e alinhamento perfeito.' },
+            { id: 'combo', name: 'Combo Imperial (Corte + Barba)', duration: 60, price: 80.00, icon: 'fa-crown', desc: 'O tratamento completo: corte de cabelo + barba terapia com toalha quente.' },
+            { id: 'sobrancelha', name: 'Sobrancelha na Navalha', duration: 15, price: 20.00, icon: 'fa-eye', desc: 'Limpeza e alinhamento natural dos fios mantendo o aspecto masculino.' },
+            { id: 'pigmentacao', name: 'Corte + Pigmentação', duration: 50, price: 70.00, icon: 'fa-paintbrush', desc: 'Corte completo com realce de contornos e preenchimento natural.' },
+            { id: 'infantil', name: 'Corte Kids (até 12 anos)', duration: 30, price: 40.00, icon: 'fa-child', desc: 'Corte moderno com toda paciência e cuidado para os pequenos.' }
+        ];
+
+        const DEFAULT_BARBERS = [
+            {
+                id: 'Elilto',
+                name: 'Elilto Lima',
+                role: 'Master Barber • 8 anos exp.',
+                specialty: 'Degradê & Clássicos',
+                whatsapp: '5563992773338',
+                avatar: 'https://images.unsplash.com/photo-1583195764036-6dc248ac07d9?auto=format&fit=crop&w=250&q=80'
+            },
+            {
+                id: 'rafael',
+                name: 'Rafael Mendes',
+                role: 'Especialista em Barba',
+                specialty: 'Barba Terapia & Visagismo',
+                whatsapp: '5511999992222',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80'
+            },
+            {
+                id: 'lucas',
+                name: 'Lucas Oliveira',
+                role: 'Barber Stylist',
+                specialty: 'Freestyle & Pigmentação',
+                whatsapp: '5511999993333',
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=250&q=80'
+            }
+        ];
+
+        const TIME_SLOTS = [
+            '09:00', '09:40', '10:20', '11:00', '11:40',
+            '13:00', '13:40', '14:20', '15:00', '15:40',
+            '16:20', '17:00', '17:40', '18:20', '19:00'
+        ];
+
+        // Estado reativo sincronizado com Firestore
+        let barbers = [...DEFAULT_BARBERS];
+        let appointments = [];
+        let webhookUrl = '';
+
+        let state = {
+            serviceId: SERVICES[2].id,
+            barberId: barbers[0].id,
+            dateStr: '',
+            dateDisplay: '',
+            time: '',
+            lastCreatedBooking: null
+        };
+
+        // =========================================================================
+        // 2. INICIALIZAÇÃO DO FIREBASE AUTH & FIRESTORE LISTENERS
+        // =========================================================================
+        async function initCloudSync() {
+            if (!firebaseConfig) {
+                updateSyncIndicator('offline', 'Modo Local');
+                return;
+            }
+
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Autenticação obrigatória antes de consultas
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        updateSyncIndicator('online', 'Agenda ao vivo');
+                        subscribeToRealtimeData();
+                    }
+                });
+            } catch (error) {
+                console.error("Erro ao conectar à nuvem:", error);
+                updateSyncIndicator('error', 'Erro de conexão');
+                showToast('Não foi possível conectar à agenda ao vivo. Verifique sua internet.', 'error');
+            }
+        }
+
+        function updateSyncIndicator(status, label) {
+            const dot = document.getElementById('sync-dot');
+            const text = document.getElementById('sync-text');
+            if (!dot || !text) return;
+
+            text.textContent = label;
+            if (status === 'online') {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+            } else if (status === 'error') {
+                dot.className = 'w-2 h-2 rounded-full bg-red-500';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+            }
+        }
+
+        function subscribeToRealtimeData() {
+            if (!currentUser || !db) return;
+
+            // 1. Escutar configurações dos barbeiros e webhook em tempo real
+            const barbersColRef = collection(db, 'artifacts', appId, 'public', 'data', 'barbers_config');
+            onSnapshot(barbersColRef, (snapshot) => {
+                const cloudMap = {};
+                snapshot.forEach(docSnap => {
+                    if (docSnap.id === '_automation') {
+                        webhookUrl = docSnap.data()?.webhookUrl || '';
+                    } else {
+                        cloudMap[docSnap.id] = docSnap.data();
+                    }
+                });
+
+                barbers = DEFAULT_BARBERS.map(def => ({
+                    ...def,
+                    whatsapp: cloudMap[def.id]?.whatsapp || def.whatsapp
+                }));
+
+                renderBarbers();
+                populateFilterBarbers();
+                if (!document.getElementById('panel-tab-settings').classList.contains('hidden')) {
+                    renderBarbersSettings();
+                }
+            }, (error) => {
+                console.error("Erro ao escutar barbeiros:", error);
+            });
+
+            // 2. Escutar agendamentos em tempo real
+            const appointmentsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'appointments');
+            onSnapshot(appointmentsColRef, (snapshot) => {
+                const list = [];
+                snapshot.forEach(docSnap => {
+                    list.push({ docId: docSnap.id, ...docSnap.data() });
+                });
+
+                // Ordenar por data e horário mais recentes primeiro na memória
+                list.sort((a, b) => {
+                    const keyA = `${a.dateStr || ''} ${a.time || ''}`;
+                    const keyB = `${b.dateStr || ''} ${b.time || ''}`;
+                    return keyB.localeCompare(keyA);
+                });
+
+                const previousSelectedTime = state.time;
+                appointments = list;
+
+                // Verificar se o horário que o cliente estava prestes a reservar acabou de ser ocupado por outro navegador
+                if (previousSelectedTime) {
+                    const justTaken = appointments.some(app =>
+                        app.barberId === state.barberId &&
+                        app.dateStr === state.dateStr &&
+                        app.time === previousSelectedTime &&
+                        app.status !== 'cancelado'
+                    );
+                    if (justTaken && !isSubmitting) {
+                        state.time = '';
+                        showToast(`O horário ${previousSelectedTime} acabou de ser reservado por outro cliente! Escolha outro.`, 'error');
+                    }
+                }
+
+                renderTimeSlots();
+                updateSummary();
+                updateAppointmentsBadge();
+
+                if (!document.getElementById('panel-modal').classList.contains('hidden')) {
+                    renderAppointmentsList();
+                }
+            }, (error) => {
+                console.error("Erro ao escutar agendamentos:", error);
+            });
+        }
+
+        // =========================================================================
+        // 3. INICIALIZAÇÃO DA UI E HELPERS
+        // =========================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderServices();
+            renderBarbers();
+            renderDates();
+            renderTimeSlots();
+            updateSummary();
+            updateAppointmentsBadge();
+            populateFilterBarbers();
+            initCloudSync();
+        });
+
+        function formatCurrency(val) {
+            return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-950 border-red-500/50 text-red-200' : 'bg-dark-800 border-gold-accent/60 text-white';
+            const icon = type === 'error' ? 'fa-circle-exclamation text-red-400' : 'fa-circle-check text-gold-light';
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl text-sm font-medium transition-all duration-300 transform translate-y-2 opacity-0 ${bgColor}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function renderServices() {
+            const grid = document.getElementById('services-grid');
+            grid.innerHTML = SERVICES.map(srv => {
+                const isSelected = state.serviceId === srv.id;
+                return `
+                    <div onclick="selectService('${srv.id}')" 
+                        class="cursor-pointer rounded-xl p-4 border transition-all flex flex-col justify-between ${
+                            isSelected 
+                            ? 'bg-amber-500/10 border-gold-light shadow-md shadow-amber-500/5' 
+                            : 'bg-dark-800/70 border-zinc-800 hover:border-zinc-700'
+                        }">
+                        <div>
+                            <div class="flex items-start justify-between gap-2 mb-1.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-lg ${isSelected ? 'bg-gold-accent text-dark-950' : 'bg-dark-700 text-gold-light'} flex items-center justify-center text-sm shrink-0">
+                                        <i class="fa-solid ${srv.icon}"></i>
+                                    </div>
+                                    <h3 class="font-bold text-white text-sm sm:text-base leading-snug">${srv.name}</h3>
+                                </div>
+                                <span class="font-bold text-gold-light text-sm sm:text-base shrink-0">${formatCurrency(srv.price)}</span>
+                            </div>
+                            <p class="text-xs text-zinc-400 mt-1 line-clamp-2">${srv.desc}</p>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-zinc-800/80 flex items-center justify-between text-xs">
+                            <span class="text-zinc-400"><i class="fa-regular fa-clock mr-1 text-zinc-500"></i> ${srv.duration} min</span>
+                            <span class="${isSelected ? 'text-gold-light font-semibold' : 'text-zinc-500'}">
+                                ${isSelected ? '<i class="fa-solid fa-circle-check mr-1"></i>Selecionado' : 'Selecionar'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderBarbers() {
+            const grid = document.getElementById('barbers-grid');
+            grid.innerHTML = barbers.map(b => {
+                const isSelected = state.barberId === b.id;
+                return `
+                    <div onclick="selectBarber('${b.id}')" 
+                        class="cursor-pointer rounded-xl p-4 border text-center transition-all relative ${
+                            isSelected 
+                            ? 'bg-amber-500/10 border-gold-light shadow-md' 
+                            : 'bg-dark-800/70 border-zinc-800 hover:border-zinc-700'
+                        }">
+                        ${isSelected ? '<span class="absolute top-3 right-3 text-gold-light text-sm"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+                        <img src="${b.avatar}" alt="${b.name}" 
+                            onerror="this.src='https://placehold.co/150x150/27272A/E2B857?text=${encodeURIComponent(b.name.charAt(0))}'"
+                            class="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 ${isSelected ? 'border-gold-light' : 'border-zinc-700'}">
+                        <h3 class="font-bold text-white text-base">${b.name}</h3>
+                        <p class="text-xs text-gold-light font-medium mt-0.5">${b.specialty}</p>
+                        <p class="text-[11px] text-zinc-500 mt-1">${b.role}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDates() {
+            const scroller = document.getElementById('dates-scroller');
+            const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            
+            let html = '';
+            let current = new Date();
+            let added = 0;
+
+            while (added < 10) {
+                if (current.getDay() !== 0) {
+                    const yyyy = current.getFullYear();
+                    const mm = String(current.getMonth() + 1).padStart(2, '0');
+                    const dd = String(current.getDate()).padStart(2, '0');
+                    const dateStr = `${yyyy}-${mm}-${dd}`;
+                    const displayLabel = `${dd}/${mm} (${daysOfWeek[current.getDay()]})`;
+
+                    if (!state.dateStr && added === 0) {
+                        state.dateStr = dateStr;
+                        state.dateDisplay = displayLabel;
+                    }
+
+                    const isSelected = state.dateStr === dateStr;
+                    html += `
+                        <button type="button" onclick="selectDate('${dateStr}', '${displayLabel}')"
+                            class="shrink-0 w-20 py-3 px-2 rounded-xl border text-center transition-all ${
+                                isSelected 
+                                ? 'bg-gold-accent border-gold-light text-dark-950 font-bold shadow-md' 
+                                : 'bg-dark-800 border-zinc-800 text-zinc-300 hover:border-zinc-700'
+                            }">
+                            <span class="block text-[11px] uppercase ${isSelected ? 'text-dark-950/80' : 'text-zinc-500'}">${added === 0 ? 'Hoje' : daysOfWeek[current.getDay()]}</span>
+                            <span class="block text-lg font-bold my-0.5">${dd}</span>
+                            <span class="block text-[11px] ${isSelected ? 'text-dark-950/80' : 'text-zinc-400'}">${months[current.getMonth()]}</span>
+                        </button>
+                    `;
+                    added++;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            scroller.innerHTML = html;
+        }
+
+        function renderTimeSlots() {
+            const grid = document.getElementById('time-slots-grid');
+            const barber = barbers.find(b => b.id === state.barberId);
+            document.getElementById('selected-barber-hint').textContent = barber ? `Agenda de ${barber.name}` : '';
+
+            // Filtrar horários ocupados ativos no Firestore para o barbeiro e data selecionados
+            const occupiedTimes = appointments
+                .filter(app => app.barberId === state.barberId && app.dateStr === state.dateStr && app.status !== 'cancelado')
+                .map(app => app.time);
+
+            if (occupiedTimes.includes(state.time)) {
+                state.time = '';
+                updateSummary();
+            }
+
+            grid.innerHTML = TIME_SLOTS.map(slot => {
+                const isOccupied = occupiedTimes.includes(slot);
+                const isSelected = state.time === slot && !isOccupied;
+
+                if (isOccupied) {
+                    return `
+                        <button type="button" disabled title="Horário já reservado"
+                            class="py-2 px-2 rounded-xl bg-dark-950/90 border border-zinc-800/80 text-zinc-600 text-xs sm:text-sm font-medium cursor-not-allowed flex flex-col items-center justify-center opacity-75">
+                            <span class="line-through">${slot}</span>
+                            <span class="text-[9px] uppercase tracking-wider text-zinc-600 font-semibold flex items-center gap-1 mt-0.5">
+                                <i class="fa-solid fa-lock text-[8px]"></i> Ocupado
+                            </span>
+                        </button>
+                    `;
+                }
+
+                return `
+                    <button type="button" onclick="selectTime('${slot}')"
+                        class="py-3 px-2 rounded-xl border text-xs sm:text-sm font-semibold transition-all ${
+                            isSelected 
+                            ? 'bg-gold-accent border-gold-light text-dark-950 shadow-md scale-[1.02]' 
+                            : 'bg-dark-800 border-zinc-700/80 text-zinc-200 hover:border-gold-light/60'
+                        }">
+                        ${slot}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // =========================================================================
+        // 4. HANDLERS DE SELEÇÃO (EXPOSTOS NO WINDOW PARA INLINE ONCLICK)
+        // =========================================================================
+        window.selectService = function(id) {
+            state.serviceId = id;
+            renderServices();
+            updateSummary();
+        };
+
+        window.selectBarber = function(id) {
+            state.barberId = id;
+            renderBarbers();
+            renderTimeSlots();
+            updateSummary();
+        };
+
+        window.selectDate = function(dateStr, displayLabel) {
+            state.dateStr = dateStr;
+            state.dateDisplay = displayLabel;
+            renderDates();
+            renderTimeSlots();
+            updateSummary();
+        };
+
+        window.selectTime = function(slot) {
+            state.time = slot;
+            renderTimeSlots();
+            updateSummary();
+        };
+
+        function updateSummary() {
+            const service = SERVICES.find(s => s.id === state.serviceId);
+            const barber = barbers.find(b => b.id === state.barberId);
+
+            document.getElementById('summary-service').textContent = service ? service.name : '--';
+            document.getElementById('summary-duration').textContent = service ? `${service.duration} minutos` : '--';
+            document.getElementById('summary-barber').textContent = barber ? barber.name : '--';
+            document.getElementById('summary-datetime').textContent = state.time ? `${state.dateDisplay} às ${state.time}` : `${state.dateDisplay} (Escolha a hora)`;
+            document.getElementById('summary-price').textContent = service ? formatCurrency(service.price) : 'R$ 0,00';
+        }
+
+        window.maskPhone = function(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 6) {
+                input.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+            } else if (v.length > 2) {
+                input.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+            } else if (v.length > 0) {
+                input.value = `(${v}`;
+            }
+        };
+
+        function formatWhatsAppNumber(rawPhone) {
+            const digits = String(rawPhone || '').replace(/\D/g, '');
+            if (digits.startsWith('55') && digits.length >= 12) return digits;
+            return '55' + digits;
+        }
+
+        function setSubmitButtonsLoading(loading) {
+            isSubmitting = loading;
+            const btnDesk = document.getElementById('btn-submit-desktop');
+            const btnMob = document.getElementById('btn-submit-mobile');
+            if (btnDesk) {
+                btnDesk.disabled = loading;
+                btnDesk.innerHTML = loading
+                    ? `<i class="fa-solid fa-circle-notch fa-spin"></i><span>Reservando e enviando...</span>`
+                    : `<i class="fa-brands fa-whatsapp text-lg"></i><span>Concluir Agendamento</span><i class="fa-solid fa-arrow-right"></i>`;
+            }
+            if (btnMob) {
+                btnMob.disabled = loading;
+                btnMob.innerHTML = loading
+                    ? `<i class="fa-solid fa-circle-notch fa-spin"></i><span>Reservando e enviando...</span>`
+                    : `<i class="fa-brands fa-whatsapp text-lg"></i><span>Concluir Agendamento</span>`;
+            }
+        }
+
+        // =========================================================================
+        // 5. SUBMISSÃO COM TRANSAÇÃO ATÔMICA E DISPARO AUTOMÁTICO WHATSAPP
+        // =========================================================================
+        async function triggerWebhookAutomation(booking, msgs) {
+            if (!webhookUrl) return { sent: false };
+            try {
+                const payload = {
+                    codigo: booking.id,
+                    clienteNome: booking.clientName,
+                    clienteTelefone: booking.clientWaNumber,
+                    mensagemCliente: msgs.clientMsg,
+                    barbeiroNome: booking.barberName,
+                    barbeiroTelefone: msgs.activeBarberWa,
+                    mensagemBarbeiro: msgs.barberMsg,
+                    servico: booking.serviceName,
+                    data: booking.dateDisplay,
+                    horario: booking.time,
+                    valor: formatCurrency(booking.servicePrice),
+                    observacoes: booking.clientNotes || ''
+                };
+
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                return { sent: response.ok };
+            } catch (err) {
+                console.error("Erro ao disparar webhook:", err);
+                return { sent: false, error: true };
+            }
+        }
+
+        function executeAutomaticWhatsAppDispatch(booking, msgs, webhookResult) {
+            const banner = document.getElementById('auto-dispatch-banner');
+            const icon = document.getElementById('auto-dispatch-icon');
+            const statusBox = document.getElementById('auto-dispatch-status');
+            const cardBarber = document.getElementById('card-wa-barber');
+            const btnBarber = document.getElementById('btn-wa-barber');
+
+            // Resetar destaque visual dos cards
+            cardBarber.className = 'bg-dark-800 border border-amber-500/30 rounded-xl p-3.5 transition-all';
+            btnBarber.className = 'w-full py-3 px-4 rounded-xl bg-dark-700 hover:bg-zinc-700 border border-gold-accent/50 text-gold-light font-bold text-sm transition-all flex items-center justify-center gap-2';
+
+            if (webhookResult && webhookResult.sent) {
+                banner.className = 'mb-5 rounded-xl p-3.5 border text-xs flex items-start gap-3 bg-emerald-950/50 border-emerald-500/50 text-emerald-200';
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-base mt-0.5';
+                statusBox.innerHTML = `
+                    <strong class="block text-emerald-300">Disparo automático via API concluído!</strong>
+                    <span>As mensagens de confirmação já foram enviadas silenciosamente para o WhatsApp de <strong>${booking.clientName}</strong> e de <strong>${booking.barberName}</strong>.</span>
+                `;
+                return;
+            }
+
+            // Disparo automático via navegador (wa.me)
+            banner.className = 'mb-5 rounded-xl p-3.5 border text-xs flex items-start gap-3 bg-emerald-950/40 border-emerald-500/40 text-emerald-200';
+            icon.className = 'fa-solid fa-circle-notch fa-spin text-emerald-400 text-base mt-0.5';
+            statusBox.innerHTML = `
+                <strong class="block text-white">Iniciando disparo automático no WhatsApp...</strong>
+                <span>Abrindo janela de confirmação para o cliente e preparando envio para o barbeiro.</span>
+            `;
+
+            // 1. Abre imediatamente a janela do WhatsApp do Cliente
+            const clientWin = window.open(msgs.clientUrl, '_blank', 'noopener,noreferrer');
+
+            // 2. Agenda a tentativa de abertura automática da segunda janela para o Barbeiro (~650ms)
+            setTimeout(() => {
+                const barberWin = window.open(msgs.barberUrl, '_blank', 'noopener,noreferrer');
+                const clientBlocked = !clientWin || clientWin.closed || typeof clientWin.closed === 'undefined';
+                const barberBlocked = !barberWin || barberWin.closed || typeof barberWin.closed === 'undefined';
+
+                if (!clientBlocked && !barberBlocked) {
+                    banner.className = 'mb-5 rounded-xl p-3.5 border text-xs flex items-start gap-3 bg-emerald-950/50 border-emerald-500/50 text-emerald-200';
+                    icon.className = 'fa-solid fa-check-double text-emerald-400 text-base mt-0.5';
+                    statusBox.innerHTML = `
+                        <strong class="block text-emerald-300">Janelas do WhatsApp abertas automaticamente!</strong>
+                        <span>Confirme o envio nas abas abertas para <strong>${booking.clientName}</strong> e <strong>${booking.barberName}</strong>.</span>
+                    `;
+                } else if (!clientBlocked && barberBlocked) {
+                    // Comportamento padrão de navegadores modernos ao bloquear o 2º pop-up simultâneo
+                    banner.className = 'mb-5 rounded-xl p-3.5 border text-xs flex items-start gap-3 bg-amber-950/50 border-amber-500/50 text-amber-200';
+                    icon.className = 'fa-solid fa-bell text-gold-light text-base mt-0.5 animate-bounce';
+                    statusBox.innerHTML = `
+                        <strong class="block text-gold-light">1º envio aberto (Cliente) • Falta 1 clique para o Barbeiro!</strong>
+                        <span>Seu navegador bloqueou a 2ª janela automática. Clique no botão destacado abaixo para notificar <strong>${booking.barberName}</strong> agora:</span>
+                    `;
+                    cardBarber.className = 'bg-amber-500/15 border-2 border-gold-light rounded-xl p-3.5 shadow-lg shadow-amber-500/10 transition-all';
+                    btnBarber.className = 'w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-gold-light to-gold-500 hover:from-amber-300 hover:to-gold-400 text-dark-950 font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2';
+                } else {
+                    // Ambos os pop-ups bloqueados pelo navegador
+                    banner.className = 'mb-5 rounded-xl p-3.5 border text-xs flex items-start gap-3 bg-amber-950/50 border-amber-500/50 text-amber-200';
+                    icon.className = 'fa-solid fa-shield-halved text-gold-light text-base mt-0.5';
+                    statusBox.innerHTML = `
+                        <strong class="block text-gold-light">Pop-ups bloqueados pelo navegador</strong>
+                        <span>Use os dois botões abaixo para enviar as confirmações para o cliente e para o barbeiro com 1 clique.</span>
+                    `;
+                }
+            }, 650);
+        }
+
+        window.handleBookingSubmit = async function(event) {
+            event.preventDefault();
+
+            if (!currentUser || !db) {
+                showToast('Aguarde a conexão com o servidor e tente novamente.', 'error');
+                return;
+            }
+
+            if (!state.serviceId) {
+                showToast('Selecione um serviço antes de continuar.', 'error');
+                return;
+            }
+            if (!state.barberId) {
+                showToast('Selecione um barbeiro.', 'error');
+                return;
+            }
+            if (!state.time) {
+                showToast('Por favor, selecione um horário disponível.', 'error');
+                document.getElementById('step-3').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            const clientName = document.getElementById('client-name').value.trim();
+            const clientPhoneRaw = document.getElementById('client-whatsapp').value.trim();
+            const clientNotes = document.getElementById('client-notes').value.trim();
+
+            if (clientPhoneRaw.replace(/\D/g, '').length < 10) {
+                showToast('Digite um número de WhatsApp válido com DDD.', 'error');
+                return;
+            }
+
+            const service = SERVICES.find(s => s.id === state.serviceId);
+            const barber = barbers.find(b => b.id === state.barberId);
+
+            // Chave determinística única para o slot (garante exclusividade absoluta na transação)
+            const slotDocId = `${barber.id}_${state.dateStr}_${state.time.replace(':', '-')}`;
+            const appointmentDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'appointments', slotDocId);
+
+            const booking = {
+                id: 'AG-' + Math.floor(1000 + Math.random() * 9000),
+                slotDocId,
+                clientName,
+                clientPhoneRaw,
+                clientWaNumber: formatWhatsAppNumber(clientPhoneRaw),
+                clientNotes,
+                serviceId: service.id,
+                serviceName: service.name,
+                servicePrice: service.price,
+                serviceDuration: service.duration,
+                barberId: barber.id,
+                barberName: barber.name,
+                barberWaNumber: formatWhatsAppNumber(barber.whatsapp),
+                dateStr: state.dateStr,
+                dateDisplay: state.dateDisplay,
+                time: state.time,
+                status: 'confirmado',
+                createdAt: new Date().toISOString()
+            };
+
+            setSubmitButtonsLoading(true);
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const existingDoc = await transaction.get(appointmentDocRef);
+                    if (existingDoc.exists() && existingDoc.data().status !== 'cancelado') {
+                        throw new Error('SLOT_ALREADY_TAKEN');
+                    }
+                    transaction.set(appointmentDocRef, booking);
+                });
+
+                const msgs = buildWhatsAppMessages(booking);
+                state.lastCreatedBooking = booking;
+                state.time = '';
+                document.getElementById('booking-form').reset();
+                updateSummary();
+
+                // Abre o modal de comprovante e executa o disparo automático
+                openConfirmationModal(booking);
+
+                const webhookResult = await triggerWebhookAutomation(booking, msgs);
+                executeAutomaticWhatsAppDispatch(booking, msgs, webhookResult);
+            } catch (err) {
+                if (err.message === 'SLOT_ALREADY_TAKEN') {
+                    state.time = '';
+                    renderTimeSlots();
+                    updateSummary();
+                    showToast('Ops! Este horário acabou de ser reservado por outra pessoa. Escolha outro horário.', 'error');
+                } else {
+                    console.error("Erro na transação de reserva:", err);
+                    showToast('Erro ao registrar agendamento. Tente novamente.', 'error');
+                }
+            } finally {
+                setSubmitButtonsLoading(false);
+            }
+        };
+
+        function buildWhatsAppMessages(booking) {
+            const obsLine = booking.clientNotes ? `\n📝 *Observação:* ${booking.clientNotes}` : '';
+
+            // Puxar o WhatsApp mais recente do barbeiro configurado na nuvem
+            const latestBarber = barbers.find(b => b.id === booking.barberId);
+            const activeBarberWa = latestBarber ? formatWhatsAppNumber(latestBarber.whatsapp) : booking.barberWaNumber;
+
+            const clientMsg = 
+`Olá, *${booking.clientName}*! ✂️🔥
+Seu agendamento na *${SHOP_INFO.name}* está *CONFIRMADO*!
+
+📋 *Resumo do Agendamento (#${booking.id}):*
+💈 *Serviço:* ${booking.serviceName} (${formatCurrency(booking.servicePrice)})
+🧔 *Barbeiro:* ${booking.barberName}
+📅 *Data:* ${booking.dateDisplay}
+⏰ *Horário:* ${booking.time}${obsLine}
+
+📍 *Endereço:* ${SHOP_INFO.address}
+
+_Caso precise reagendar, avise com antecedência. Te esperamos lá!_`;
+
+            const barberMsg = 
+`🔔 *NOVO AGENDAMENTO RECEBIDO!* (#${booking.id})
+Fala, *${booking.barberName}*! Um cliente acabou de reservar um horário com você:
+
+👤 *Cliente:* ${booking.clientName}
+📱 *WhatsApp:* ${booking.clientPhoneRaw}
+💈 *Serviço:* ${booking.serviceName} (${booking.serviceDuration} min)
+💰 *Valor:* ${formatCurrency(booking.servicePrice)}
+📅 *Data:* ${booking.dateDisplay}
+⏰ *Horário:* ${booking.time}${obsLine}`;
+
+            return {
+                clientMsg,
+                barberMsg,
+                activeBarberWa,
+                clientUrl: `https://wa.me/${booking.clientWaNumber}?text=${encodeURIComponent(clientMsg)}`,
+                barberUrl: `https://wa.me/${activeBarberWa}?text=${encodeURIComponent(barberMsg)}`
+            };
+        }
+
+        // =========================================================================
+        // 6. MODAIS (CONFIRMAÇÃO E PAINEL DO BARBEIRO)
+        // =========================================================================
+        function openConfirmationModal(booking) {
+            state.lastCreatedBooking = booking;
+            const msgs = buildWhatsAppMessages(booking);
+
+            document.getElementById('modal-booking-details').innerHTML = `
+                <div class="flex justify-between border-b border-zinc-700/80 pb-2">
+                    <span class="text-zinc-400">Código:</span>
+                    <span class="font-mono font-bold text-gold-light">${booking.id}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Cliente:</span>
+                    <span class="font-semibold text-white">${booking.clientName}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Serviço:</span>
+                    <span class="font-semibold text-white">${booking.serviceName}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Barbeiro:</span>
+                    <span class="font-semibold text-white">${booking.barberName}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Data e Hora:</span>
+                    <span class="font-bold text-emerald-400">${booking.dateDisplay} às ${booking.time}</span>
+                </div>
+            `;
+
+            document.getElementById('btn-wa-client').href = msgs.clientUrl;
+            document.getElementById('btn-wa-barber').href = msgs.barberUrl;
+            document.getElementById('btn-wa-barber-text').textContent = `Notificar ${booking.barberName} no WhatsApp`;
+
+            const modal = document.getElementById('confirmation-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        window.closeConfirmationModal = function() {
+            const modal = document.getElementById('confirmation-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        window.copyMessage = function(target) {
+            if (!state.lastCreatedBooking) return;
+            const msgs = buildWhatsAppMessages(state.lastCreatedBooking);
+            const textToCopy = target === 'client' ? msgs.clientMsg : msgs.barberMsg;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast(target === 'client' ? 'Mensagem do cliente copiada!' : 'Mensagem do barbeiro copiada!');
+        };
+
+        window.openPanelModal = function(tab = 'appointments') {
+            const modal = document.getElementById('panel-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            switchPanelTab(tab);
+        };
+
+        window.closePanelModal = function() {
+            const modal = document.getElementById('panel-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        window.switchPanelTab = function(tab) {
+            const tabApp = document.getElementById('panel-tab-appointments');
+            const tabSet = document.getElementById('panel-tab-settings');
+            const btnApp = document.getElementById('tab-btn-appointments');
+            const btnSet = document.getElementById('tab-btn-settings');
+
+            if (tab === 'appointments') {
+                tabApp.classList.remove('hidden');
+                tabSet.classList.add('hidden');
+                btnApp.className = 'px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-gold-accent text-dark-950';
+                btnSet.className = 'px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-dark-800 text-zinc-400 hover:text-white';
+                renderAppointmentsList();
+            } else {
+                tabSet.classList.remove('hidden');
+                tabApp.classList.add('hidden');
+                btnSet.className = 'px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-gold-accent text-dark-950';
+                btnApp.className = 'px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-dark-800 text-zinc-400 hover:text-white';
+                renderBarbersSettings();
+            }
+        };
+
+        function populateFilterBarbers() {
+            const select = document.getElementById('filter-barber');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = `<option value="all">Todos os Barbeiros</option>` +
+                barbers.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            select.value = currentVal || 'all';
+        }
+
+        window.resetAdminFilters = function() {
+            document.getElementById('filter-barber').value = 'all';
+            document.getElementById('filter-date').value = '';
+            renderAppointmentsList();
+        };
+
+        function updateAppointmentsBadge() {
+            const activeCount = appointments.filter(a => a.status !== 'cancelado').length;
+            document.getElementById('badge-count').textContent = activeCount;
+        }
+
+        window.renderAppointmentsList = function() {
+            const container = document.getElementById('appointments-list');
+            const filterBarber = document.getElementById('filter-barber')?.value || 'all';
+            const filterDate = document.getElementById('filter-date')?.value || '';
+
+            const filtered = appointments.filter(app => {
+                if (app.status === 'cancelado') return false;
+                if (filterBarber !== 'all' && app.barberId !== filterBarber) return false;
+                if (filterDate && app.dateStr !== filterDate) return false;
+                return true;
+            });
+
+            const countLabel = document.getElementById('filtered-count');
+            if (countLabel) {
+                countLabel.textContent = `${filtered.length} agendamento(s)`;
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 bg-dark-800/40 rounded-xl border border-zinc-800">
+                        <i class="fa-regular fa-calendar-xmark text-3xl text-zinc-600 mb-2"></i>
+                        <p class="text-zinc-400 text-sm">Nenhum agendamento encontrado para este filtro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(app => {
+                const msgs = buildWhatsAppMessages(app);
+                const docKey = app.slotDocId || app.docId;
+
+                return `
+                    <div class="bg-dark-800 border border-zinc-700/80 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-xs font-mono font-bold bg-gold-accent/20 text-gold-light px-2 py-0.5 rounded">${app.id}</span>
+                                <span class="font-bold text-white text-base">${app.clientName}</span>
+                                <span class="text-xs text-zinc-400">(${app.clientPhoneRaw})</span>
+                            </div>
+                            <p class="text-sm text-zinc-300">
+                                <strong class="text-gold-light">${app.serviceName}</strong> com <strong>${app.barberName}</strong>
+                            </p>
+                            <p class="text-xs text-zinc-400">
+                                <i class="fa-regular fa-calendar mr-1"></i> ${app.dateDisplay} às <strong class="text-white">${app.time}</strong> • ${formatCurrency(app.servicePrice)}
+                            </p>
+                            ${app.clientNotes ? `<p class="text-xs text-zinc-500 italic">Obs: ${app.clientNotes}</p>` : ''}
+                        </div>
+
+                        <div class="flex flex-wrap sm:flex-col gap-2 shrink-0">
+                            <a href="${msgs.clientUrl}" target="_blank" rel="noopener noreferrer"
+                                class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                                <i class="fa-brands fa-whatsapp"></i> WhatsApp Cliente
+                            </a>
+                            <a href="${msgs.barberUrl}" target="_blank" rel="noopener noreferrer"
+                                class="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-gold-light text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                                <i class="fa-brands fa-whatsapp"></i> WhatsApp Barbeiro
+                            </a>
+                            <button onclick="cancelAppointment('${docKey}')"
+                                class="px-3 py-1 rounded-lg bg-red-950/50 hover:bg-red-900/50 text-red-400 text-[11px] font-medium transition-colors">
+                                Cancelar e Liberar Horário
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.cancelAppointment = async function(docKey) {
+            if (!currentUser || !db || !docKey) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appointments', docKey);
+                await deleteDoc(docRef);
+                showToast('Agendamento cancelado e horário liberado em tempo real!');
+            } catch (err) {
+                console.error("Erro ao cancelar agendamento:", err);
+                showToast('Erro ao cancelar agendamento.', 'error');
+            }
+        };
+
+        function renderBarbersSettings() {
+            const container = document.getElementById('barbers-settings-list');
+            container.innerHTML = barbers.map(b => `
+                <div class="bg-dark-800 border border-zinc-700/80 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <img src="${b.avatar}" alt="${b.name}" class="w-11 h-11 rounded-full object-cover border border-zinc-600">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${b.name}</h4>
+                            <p class="text-xs text-zinc-400">${b.specialty}</p>
+                        </div>
+                    </div>
+                    <div class="w-full sm:w-60">
+                        <label class="block text-[11px] text-zinc-400 mb-1">WhatsApp (Código País + DDD + Número)</label>
+                        <input type="text" id="barber-wa-${b.id}" value="${b.whatsapp}" placeholder="5511999999999"
+                            class="w-full px-3 py-2 bg-dark-900 border border-zinc-700 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-gold-light">
+                    </div>
+                </div>
+            `).join('');
+
+            const webhookInput = document.getElementById('webhook-url-input');
+            if (webhookInput) {
+                webhookInput.value = webhookUrl || '';
+            }
+        }
+
+        window.saveBarbersSettings = async function() {
+            if (!currentUser || !db) {
+                showToast('Aguarde a conexão com a nuvem.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-save-barbers');
+            if (btn) btn.disabled = true;
+
+            try {
+                const updates = barbers.map(b => {
+                    const input = document.getElementById(`barber-wa-${b.id}`);
+                    const cleanNum = input ? input.value.replace(/\D/g, '') : b.whatsapp;
+                    const finalWa = cleanNum || b.whatsapp;
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'barbers_config', b.id);
+                    return setDoc(docRef, {
+                        id: b.id,
+                        name: b.name,
+                        whatsapp: finalWa,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                });
+
+                const webhookInput = document.getElementById('webhook-url-input');
+                const newWebhookUrl = webhookInput ? webhookInput.value.trim() : '';
+                const automationDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'barbers_config', '_automation');
+                updates.push(setDoc(automationDocRef, {
+                    webhookUrl: newWebhookUrl,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true }));
+
+                await Promise.all(updates);
+                showToast('Configurações de WhatsApp salvas na nuvem!');
+                closePanelModal();
+            } catch (err) {
+                console.error("Erro ao salvar WhatsApp dos barbeiros:", err);
+                showToast('Erro ao salvar configurações na nuvem.', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
